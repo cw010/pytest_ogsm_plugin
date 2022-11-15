@@ -2,30 +2,42 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2022/11/10 3:29 PM
 # @Author  : cw
-from setuptools import setup
+import os
 
+from setuptools import setup, find_packages
+
+
+def read(fname):
+    file_path = os.path.join(os.path.dirname(__file__), fname)
+    return open(file_path, encoding='utf-8').read()
+
+x
 setup(
     name='pytest_ogsm_plugin',
     url='https://github.com/cw010/pytest_ogsm_plugin',
-    version='1.0',
+    version='1.2',
     author="cw",
     author_email='cwalk.t@gmail.com',
-    description='pytest终端输出中的. F，以✔、×代替',
-    long_description='pytest终端输出中的. F，以✔、×代替',
+    long_description=read('README.md'),
+    long_description_content_type="text/markdown",
     classifiers=[
         'Framework :: Pytest',
-        'Programming Language :: Python',
-        'Topic :: Software Development :: Testing',
+        'Framework :: Jinja2',
         'Programming Language :: Python :: 3.9',
     ],
     license='proprietary',
+    packages=find_packages(),
+    package_data={
+        "": ["*.html", '*.md'],
+    },
     py_modules=['pytest_ogsm'],
     keywords=[
         'pytest', 'py.test', 'pytest_ogsm_plugin',
     ],
 
     install_requires=[
-        'pytest'
+        'pytest',
+        'jinja2'
     ],
     entry_points={
         'pytest11': [

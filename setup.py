@@ -19,7 +19,7 @@ setup(
         'Programming Language :: Python :: 3.9',
     ],
     license='proprietary',
-    py_modules=['pytest_change_report'],
+    py_modules=['pytest_ogsm'],
     keywords=[
         'pytest', 'py.test', 'pytest_ogsm_plugin',
     ],
@@ -29,7 +29,7 @@ setup(
     ],
     entry_points={
         'pytest11': [
-            'ogsm_plugin = pytest_change_report',
+            'ogsm_plugin = pytest_ogsm',
         ]
     }
 )

@@ -7,4 +7,5 @@ import pytest
 
 @pytest.mark.parametrize("name", ["小文", "小曾", "小s"])
 def test_encode(name):
+    """我是测试的描述呀"""
     print(name)

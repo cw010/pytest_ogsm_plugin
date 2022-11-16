@@ -10,14 +10,6 @@ import time
 import pytest
 from jinja2 import Environment, FileSystemLoader
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--change",
-        action="store",
-        default="off",
-        help="'Default 'off' for change, option: on or off"
-    )
-
 
 def pytest_report_teststatus(report, config):
     """turn . into √，turn F into x, turn E into 0"""
@@ -79,7 +71,7 @@ def handle_history_data(report_dir, test_result):
     try:
         with open(os.path.join(report_dir, 'history.json'), 'r', encoding='utf-8') as f:
             history = json.load(f)
-    except :
+    except:
         history = []
     history.append({'success': test_result['passed'],
                     'all': test_result['all'],
@@ -95,13 +87,14 @@ def handle_history_data(report_dir, test_result):
         json.dump(history, f, ensure_ascii=True)
     return history
 
+
 def pytest_sessionfinish(session):
     """在整个测试运行完成之后调用的钩子函数,可以在此处生成测试报告"""
     report2 = session.config.getoption('--report')
 
     if report2:
         test_result['title'] = session.config.getoption('--title') or '测试报告'
-        test_result['tester'] = session.config.getoption('--tester') or '小测试'
+        test_result['tester'] = session.config.getoption('--tester') or 'QA'
         test_result['desc'] = session.config.getoption('--desc') or '无'
         # templates_name = session.config.getoption('--template') or '1'
         name = report2
@@ -140,7 +133,6 @@ def pytest_sessionfinish(session):
         f.write(report.encode('utf8'))
 
 
-
 @pytest.hookimpl(tryfirst=True, hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
@@ -149,47 +141,54 @@ def pytest_runtest_makereport(item, call):
     plugin_extras = getattr(report, "extra", [])
     report.extra = fixture_extras + plugin_extras
     report.fileName = item.location[0]
-    if hasattr(item, 'callspec'):
-        report.desc = item.callspec.id or item._obj.__doc__
-    else:
-        report.desc = item._obj.__doc__
+    report.desc = item.function.__doc__
     report.method = item.location[2].split('[')[0]
 
 
 def pytest_addoption(parser):
     group = parser.getgroup("testreport")
+    project_choices_value = ['all', 'openapi', 'gic2api']
+    product_choices_value = ['all', 'inpaas', 'mongodb', 'ccs', 'bms', 'network', 'ecs_vm', 'nas', 'ecs_server', ]
     group.addoption(
         "--report",
         action="store",
         metavar="path",
         default=None,
-        help="create html report file at given path.",
+        help="在指定路径创建html报告文件",
     )
     group.addoption(
         "--title",
         action="store",
         metavar="path",
         default=None,
-        help="pytest-testreport Generate a title of the repor",
+        help="报告标题",
     )
     group.addoption(
         "--tester",
         action="store",
         metavar="path",
         default=None,
-        help="pytest-testreport Generate a tester of the report",
+        help="报告人员/团队",
     )
     group.addoption(
         "--desc",
         action="store",
         metavar="path",
         default=None,
-        help="pytest-testreport Generate a description of the report",
+        help="报告描述",
     )
-    group.addoption(
-        "--template",
-        action="store",
-        metavar="path",
-        default=None,
-        help="pytest-testreport Generate a template of the report",
+    parser.addoption(
+        "--project",
+        action='append',
+        default=[],
+        choices=project_choices_value,
+        help='项目名'
+    )
+    parser.addoption(
+        "--product",
+        action='append',
+        default=[],
+        required=True,
+        choices=product_choices_value,
+        help='产品线名称'
     )

@@ -15,14 +15,14 @@ def read(fname):
 setup(
     name='pytest_ogsm_plugin',
     url='https://github.com/cw010/pytest_ogsm_plugin',
-    version='1.2',
+    version='1.5',
     author="cw",
     author_email='cwalk.t@gmail.com',
     long_description=read('README.md'),
     long_description_content_type="text/markdown",
+    description='针对特定项目定制化插件，优化了pytest报告展示方式,并添加了项目所需特定参数',
     classifiers=[
         'Framework :: Pytest',
-        'Framework :: Jinja2',
         'Programming Language :: Python :: 3.9',
     ],
     license='proprietary',
@@ -41,7 +41,7 @@ setup(
     ],
     entry_points={
         'pytest11': [
-            'ogsm_plugin = pytest_ogsm',
+            'ogsm_plugin = pytestOGSMplugin.pytest_ogsm',
         ]
     }
 )

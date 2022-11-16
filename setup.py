@@ -11,7 +11,7 @@ def read(fname):
     file_path = os.path.join(os.path.dirname(__file__), fname)
     return open(file_path, encoding='utf-8').read()
 
-x
+
 setup(
     name='pytest_ogsm_plugin',
     url='https://github.com/cw010/pytest_ogsm_plugin',

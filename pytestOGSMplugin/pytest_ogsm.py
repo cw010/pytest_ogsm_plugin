@@ -103,7 +103,7 @@ def pytest_sessionfinish(session):
         test_result['title'] = session.config.getoption('--title') or '测试报告'
         test_result['tester'] = session.config.getoption('--tester') or '小测试'
         test_result['desc'] = session.config.getoption('--desc') or '无'
-        templates_name = session.config.getoption('--template') or '1'
+        # templates_name = session.config.getoption('--template') or '1'
         name = report2
     else:
         return
@@ -130,10 +130,11 @@ def pytest_sessionfinish(session):
     template_path = os.path.join(os.path.dirname(__file__), './templates')
     env = Environment(loader=FileSystemLoader(template_path))
 
-    if templates_name == '2':
-        template = env.get_template('templates2.html')
-    else:
-        template = env.get_template('templates.html')
+    # if templates_name == '1':
+    #     template = env.get_template('templates.html')
+    # else:
+    #     template = env.get_template('templates.html')
+    template = env.get_template('templates.html')
     report = template.render(test_result)
     with open(file_name, 'wb') as f:
         f.write(report.encode('utf8'))

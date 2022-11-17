@@ -15,7 +15,7 @@ def read(fname):
 setup(
     name='pytest_ogsm_plugin',
     url='https://github.com/cw010/pytest_ogsm_plugin',
-    version='1.7',
+    version='1.8',
     author="cw",
     author_email='cwalk.t@gmail.com',
     long_description=read('README.md'),

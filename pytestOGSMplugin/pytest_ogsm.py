@@ -12,9 +12,9 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def pytest_report_teststatus(report, config):
-    """turn . into √，turn F into x, turn E into 0"""
+    """控制台展示测试结果时，√代替.，x代替F"""
     if report.when == 'call' and report.failed:
-        return report.outcome, 'x', 'failed'
+        return report.outcome, 'X', 'failed'
     if report.when == 'call' and report.passed:
         return report.outcome, 'Y', 'passed'
 
@@ -40,6 +40,63 @@ test_result = {
 def pytest_make_parametrize_id(config, val, argname):
     if isinstance(val, dict):
         return val.get('title') or val.get('desc')
+
+
+def pytest_collection_modifyitems(session, items, config):
+    """
+    测试用例收集完成时，将收集到的用例二次过滤
+    :return:
+    """
+    cmd_project = config.getoption('--project')
+    cmd_product = config.getoption('--product')
+    cmd_mark = config.getoption('-m')
+
+    selected_items = []
+    deselected_items = []
+    for item in items:
+        item.name = item.name.encode("utf-8").decode("unicode_escape")
+        item._nodeid = item.nodeid.encode("utf-8").decode("unicode_escape")
+        def_prefix = item._nodeid
+        print(def_prefix, '我在这里')
+        print(type(def_prefix))
+        print(type(cmd_project))
+        if cmd_project == 'all' and cmd_product == 'all':
+            if cmd_mark == 'initial':
+                if 'initdata' in def_prefix:
+                    # if any(name in def_prefix for name in ['initdata',cmd_project[0],cmd_product[0]]):
+                    selected_items.append(item)
+            elif cmd_mark == 'base':
+                if 'initdata' not in def_prefix:
+                    # if any(name in def_prefix for name in ['initdata',cmd_project[0],cmd_product[0]]):
+                    selected_items.append(item)
+            else:
+                pass
+        elif cmd_project == 'all' and cmd_product != 'all':
+            if cmd_mark == 'initial':
+                if 'initdata' in def_prefix and cmd_product in def_prefix:
+                    selected_items.append(item)
+            elif cmd_mark == 'base':
+                if 'initdata' not in def_prefix and cmd_product in def_prefix:
+                    # if any(name in def_prefix for name in ['initdata',cmd_project[0],cmd_product[0]]):
+                    selected_items.append(item)
+            else:
+                pass
+        elif cmd_project != 'all' and cmd_product == 'all':
+            if cmd_mark == 'initial':
+                if 'initdata' in def_prefix and cmd_project in def_prefix:
+                    selected_items.append(item)
+            elif cmd_mark == 'base':
+                if 'initdata' not in def_prefix and cmd_project in def_prefix:
+                    # if any(name in def_prefix for name in ['initdata',cmd_project[0],cmd_product[0]]):
+                    selected_items.append(item)
+            else:
+                pass
+        else:
+            if 'initdata' not in def_prefix and cmd_project in def_prefix and cmd_product in def_prefix:
+                selected_items.append(item)
+        config.hook.pytest_deselected(items=deselected_items)
+    items[:] = selected_items
+    print(items, '运行的')
 
 
 def pytest_runtest_logreport(report):
@@ -141,7 +198,7 @@ def pytest_runtest_makereport(item, call):
     plugin_extras = getattr(report, "extra", [])
     report.extra = fixture_extras + plugin_extras
     report.fileName = item.location[0]
-    report.desc = item.function.__doc__
+    report.desc = item._obj.__doc__
     report.method = item.location[2].split('[')[0]
 
 
@@ -179,15 +236,16 @@ def pytest_addoption(parser):
     )
     parser.addoption(
         "--project",
-        action='append',
-        default=[],
+        action='store',
+        default=None,
+        required=True,
         choices=project_choices_value,
         help='项目名'
     )
     parser.addoption(
         "--product",
-        action='append',
-        default=[],
+        action='store',
+        default=None,
         required=True,
         choices=product_choices_value,
         help='产品线名称'
